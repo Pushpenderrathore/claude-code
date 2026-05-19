@@ -36,6 +36,60 @@ Free Claude Code provides:
 - Optional voice-note transcription via local Whisper or NVIDIA NIM.
 - A local administrative interface at `/admin` for editing supported proxy settings, validating changes, and verifying providers. Access is restricted to loopback.
 
+## Table of Contents
+
+<details open>
+<summary>Click to expand or collapse</summary>
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+  - [1. Install Claude Code](#1-install-claude-code)
+  - [2. Install Runtime Requirements](#2-install-runtime-requirements)
+  - [3. Obtain an NVIDIA NIM API Key](#3-obtain-an-nvidia-nim-api-key)
+  - [4. Install the Proxy](#4-install-the-proxy)
+  - [5. Start the Proxy](#5-start-the-proxy)
+  - [6. Open the Admin UI and Configure NVIDIA NIM](#6-open-the-admin-ui-and-configure-nvidia-nim)
+  - [7. Launch Claude Code](#7-launch-claude-code)
+- [Installation Troubleshooting](#installation-troubleshooting)
+  - [1. `uv` command not found after install](#1-zsh-command-not-found-uv-immediately-after-installing-uv)
+  - [2. `uv -version` returns "unexpected argument"](#2-uv--version-returns-unexpected-argument)
+  - [3. Uvicorn cannot import module `service`](#3-error-error-loading-asgi-app-could-not-import-module-service)
+  - [4. `cd` into clone target fails](#4-cd-no-such-file-or-directory-nvidia-nim-after-cloning)
+  - [5. `.env` file does not appear after copy](#5-env-file-does-not-appear-after-cp-envexample-env)
+  - [6. Clone target already exists](#6-fatal-destination-path-nvidia-nim-already-exists-and-is-not-an-empty-directory)
+  - [7. Port 8082 is already in use](#7-port-8082-is-already-in-use)
+- [Choose a Provider](#choose-a-provider)
+  - [1. NVIDIA NIM](#1-nvidia-nim)
+  - [2. Kimi](#2-kimi)
+  - [3. Wafer](#3-wafer)
+  - [4. OpenRouter](#4-openrouter)
+  - [5. DeepSeek](#5-deepseek)
+  - [6. LM Studio](#6-lm-studio)
+  - [7. llama.cpp](#7-llamacpp)
+  - [8. Ollama](#8-ollama)
+  - [9. OpenCode Zen](#9-opencode-zen)
+  - [10. Z.ai](#10-zai)
+  - [11. Mixing Providers by Model Tier](#11-mixing-providers-by-model-tier)
+- [Connect Claude Code](#connect-claude-code)
+  - [1. Claude Code CLI](#1-claude-code-cli)
+  - [2. VS Code Extension](#2-vs-code-extension)
+  - [3. JetBrains ACP](#3-jetbrains-acp)
+  - [4. Model Picker](#4-model-picker)
+- [Optional Integrations](#optional-integrations)
+  - [1. Discord and Telegram Bots](#1-discord-and-telegram-bots)
+  - [2. Voice Notes](#2-voice-notes)
+- [Architecture](#architecture)
+- [Development](#development)
+  - [1. Project Structure](#1-project-structure)
+  - [2. Running From Source](#2-running-from-source)
+  - [3. Standard Commands](#3-standard-commands)
+  - [4. Package Scripts](#4-package-scripts)
+  - [5. Extending the Proxy](#5-extending-the-proxy)
+- [Contributing](#contributing)
+- [License](#license)
+
+</details>
+
 ## Quick Start
 
 ### 1. Install Claude Code
