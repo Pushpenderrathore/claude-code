@@ -350,6 +350,102 @@ class TestSettings:
         assert settings.anthropic_auth_token == "server-token"
         assert settings.uses_process_anthropic_auth_token() is False
 
+    def test_credential_valid_ascii_preserved(self, monkeypatch):
+        """A normal ASCII API key passes validation unchanged."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("NVIDIA_NIM_API_KEY", "nvapi-abc123_XYZ-456")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        settings = Settings()
+        assert settings.nvidia_nim_api_key == "nvapi-abc123_XYZ-456"
+
+    def test_credential_empty_string_allowed(self, monkeypatch):
+        """An empty credential is allowed (means unset)."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("NVIDIA_NIM_API_KEY", "")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        settings = Settings()
+        assert settings.nvidia_nim_api_key == ""
+
+    def test_credential_rejects_non_ascii(self, monkeypatch):
+        """Non-ASCII characters in a credential fail fast at load time."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("NVIDIA_NIM_API_KEY", "nvapi-⚠warning")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        with pytest.raises(ValidationError, match=r"NVIDIA_NIM_API_KEY.*non-ASCII"):
+            Settings()
+
+    def test_credential_rejects_newline(self, monkeypatch):
+        """A newline in a credential fails fast at load time."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("OPENROUTER_API_KEY", "sk-abc\nsk-def")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        with pytest.raises(ValidationError, match=r"OPENROUTER_API_KEY.*control"):
+            Settings()
+
+    def test_credential_rejects_tab(self, monkeypatch):
+        """A tab in a credential fails fast at load time."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-abc\tdef")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        with pytest.raises(ValidationError, match=r"DEEPSEEK_API_KEY.*control"):
+            Settings()
+
+    def test_credential_rejects_leading_whitespace(self, monkeypatch):
+        """Leading whitespace in a credential fails fast at load time."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("KIMI_API_KEY", " sk-abc")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        with pytest.raises(ValidationError, match=r"KIMI_API_KEY.*whitespace"):
+            Settings()
+
+    def test_credential_rejects_trailing_whitespace(self, monkeypatch):
+        """Trailing whitespace in a credential fails fast at load time."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("ZAI_API_KEY", "sk-abc ")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        with pytest.raises(ValidationError, match=r"ZAI_API_KEY.*whitespace"):
+            Settings()
+
+    def test_credential_rejects_pasted_shell_config(self, monkeypatch, tmp_path):
+        """A pasted multi-line shell block (the original bug) fails at load."""
+        from config.settings import Settings
+
+        env_file = tmp_path / ".env"
+        env_file.write_text(
+            'NVIDIA_NIM_API_KEY="# Added by LM Studio CLI '
+            'export PATH=$PATH:/foo\n⚠ Welcome back"\n',
+            encoding="utf-8",
+        )
+        monkeypatch.delenv("NVIDIA_NIM_API_KEY", raising=False)
+        monkeypatch.setitem(Settings.model_config, "env_file", (env_file,))
+        with pytest.raises(ValidationError, match="NVIDIA_NIM_API_KEY"):
+            Settings()
+
+    def test_credential_validation_applies_to_anthropic_auth_token(self, monkeypatch):
+        """Server auth token is also validated as a credential."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "token⚠")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        with pytest.raises(ValidationError, match=r"ANTHROPIC_AUTH_TOKEN.*non-ASCII"):
+            Settings()
+
+    def test_credential_validation_applies_to_discord_bot_token(self, monkeypatch):
+        """Optional bot tokens are also validated."""
+        from config.settings import Settings
+
+        monkeypatch.setenv("DISCORD_BOT_TOKEN", "bot-token\n")
+        monkeypatch.setitem(Settings.model_config, "env_file", ())
+        with pytest.raises(ValidationError, match=r"DISCORD_BOT_TOKEN.*control"):
+            Settings()
+
     def test_removed_nim_enable_thinking_raises(self, monkeypatch):
         """NIM_ENABLE_THINKING now fails fast with a migration message."""
         from config.settings import Settings

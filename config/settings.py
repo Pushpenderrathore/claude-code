@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import dotenv_values
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, ValidationInfo, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .constants import HTTP_CONNECT_TIMEOUT_DEFAULT
@@ -402,6 +402,47 @@ class Settings(BaseSettings):
                     f"Invalid URL scheme in web_fetch_allowed_schemes: {scheme!r}"
                 )
         return ",".join(schemes)
+
+    @field_validator(
+        "open_router_api_key",
+        "deepseek_api_key",
+        "kimi_api_key",
+        "wafer_api_key",
+        "opencode_api_key",
+        "zai_api_key",
+        "fireworks_api_key",
+        "nvidia_nim_api_key",
+        "hf_token",
+        "anthropic_auth_token",
+        "telegram_bot_token",
+        "discord_bot_token",
+    )
+    @classmethod
+    def validate_credential(cls, v: str | None, info: ValidationInfo) -> str | None:
+        if not v:
+            return v
+        field = cls.model_fields.get(info.field_name or "")
+        alias = getattr(field, "validation_alias", None) if field else None
+        env_name = alias if isinstance(alias, str) else (info.field_name or "").upper()
+        for ch in v:
+            if not ch.isascii():
+                raise ValueError(
+                    f"{env_name} contains non-ASCII character {ch!r}. "
+                    "API keys must be plain ASCII; check that the value was not "
+                    "accidentally pasted from a shell config or admin UI."
+                )
+            code = ord(ch)
+            if code < 0x20 or code == 0x7F:
+                raise ValueError(
+                    f"{env_name} contains control character (code {code:#04x}); "
+                    "the value must be a single line with no tabs or newlines."
+                )
+        if v != v.strip():
+            raise ValueError(
+                f"{env_name} has leading or trailing whitespace; remove it "
+                "(no surrounding quotes needed in .env)."
+            )
+        return v
 
     @field_validator("ollama_base_url")
     @classmethod
