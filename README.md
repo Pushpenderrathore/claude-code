@@ -112,6 +112,97 @@ fcc-claude
 
 `fcc-claude` reads the currently configured port and authentication token on each invocation, sets the required Claude Code environment variables (including a 190,000-token `CLAUDE_CODE_AUTO_COMPACT_WINDOW` value for auto-compaction), and then launches the underlying `claude` command.
 
+## Installation Troubleshooting
+
+The following issues are commonly encountered while completing the [Quick Start](#quick-start). Each entry pairs a symptom with the resolution.
+
+### 1. `zsh: command not found: uv` immediately after installing uv
+
+The `uv` installer places the binary in `$HOME/.local/bin`, but the current shell session does not yet include that directory in `PATH`. The installer prints this on completion; if it has scrolled out of view, apply the fix below.
+
+macOS and Linux (bash or zsh):
+
+```bash
+source $HOME/.local/bin/env
+uv --version
+```
+
+After verifying that `uv --version` succeeds, continue with `uv python install 3.14`.
+
+To make the change permanent for new shell sessions, append the same `source` line to the appropriate shell rc file:
+
+```bash
+# zsh (default on macOS)
+echo 'source $HOME/.local/bin/env' >> ~/.zshrc
+source ~/.zshrc
+
+# bash
+echo 'source $HOME/.local/bin/env' >> ~/.bashrc
+source ~/.bashrc
+
+# fish
+echo 'source $HOME/.local/bin/env.fish' >> ~/.config/fish/config.fish
+```
+
+On Windows PowerShell, close and reopen the terminal after the installer completes, or run `refreshenv` if the [Chocolatey](https://chocolatey.org/) helpers are available.
+
+### 2. `uv -version` returns "unexpected argument"
+
+`uv` uses the GNU-style long flag. Use `uv --version` (two dashes) or `uv self version`.
+
+### 3. `ERROR: Error loading ASGI app. Could not import module "service"`
+
+The Uvicorn entry point is `server:app`, not `service:app` or `app:app`. From a source checkout:
+
+```bash
+uv run uvicorn server:app --host 0.0.0.0 --port 8082
+```
+
+Most users do not need this command — install the packaged proxy and run `fcc-server` as described in [Quick Start](#quick-start) instead. Use the `uvicorn` form only when working from a local clone of the repository.
+
+### 4. `cd: no such file or directory: nvidia-nim` after cloning
+
+The directory is only named `nvidia-nim` when the repository is cloned with that name as the target. Either clone with an explicit target directory, or `cd` into the default `free-claude-code` directory produced by `git clone`:
+
+```bash
+# Option A — clone into an explicitly named directory
+git clone https://github.com/Alishahryar1/free-claude-code.git nvidia-nim
+cd nvidia-nim
+
+# Option B — use the default directory name
+git clone https://github.com/Alishahryar1/free-claude-code.git
+cd free-claude-code
+```
+
+### 5. `.env` file does not appear after `cp .env.example .env`
+
+The file is created successfully; macOS Finder and `ls` hide dotfiles by default. Confirm with `ls -la` or open the file directly:
+
+```bash
+ls -la .env
+open -e .env        # macOS, opens in TextEdit
+```
+
+### 6. `fatal: destination path 'nvidia-nim' already exists and is not an empty directory`
+
+`git clone` refuses to overwrite a non-empty target. Remove or rename the existing directory if its contents are not needed, or clone into a different target name:
+
+```bash
+rm -rf nvidia-nim   # destructive — verify contents first
+git clone https://github.com/Alishahryar1/free-claude-code.git nvidia-nim
+```
+
+### 7. Port 8082 is already in use
+
+Stop any previously started instance of `fcc-server` (or any other process bound to the port), or choose a different port:
+
+```bash
+lsof -i :8082       # identify the process holding the port (macOS / Linux)
+fcc-server --port 8090
+```
+
+When changing the port, update `ANTHROPIC_BASE_URL` for any connected client (Claude Code CLI, VS Code, JetBrains ACP) to match.
+
 ## Choose a Provider
 
 Select a provider, supply its API key or local URL through the Admin UI, and set `MODEL` to a provider-prefixed model slug. `MODEL` acts as the fallback. The values `MODEL_OPUS`, `MODEL_SONNET`, and `MODEL_HAIKU` may be used to override routing for individual Claude Code model tiers.
