@@ -89,6 +89,10 @@ Free Claude Code provides:
   - [3. Standard Commands](#3-standard-commands)
   - [4. Package Scripts](#4-package-scripts)
   - [5. Extending the Proxy](#5-extending-the-proxy)
+- [Walkthrough](#walkthrough)
+  - [1. All Links](#1-all-links)
+  - [2. Quick Commands](#2-quick-commands)
+  - [3. Step-by-Step Guide](#3-step-by-step-guide)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -649,6 +653,170 @@ These should be executed in the order shown prior to pushing. Continuous integra
 - Add Anthropic Messages providers by extending `AnthropicMessagesTransport`.
 - Register provider metadata in `config.provider_catalog` and factory wiring in `providers.registry`.
 - Add messaging platforms by implementing the `MessagingPlatform` interface within `messaging/`.
+
+## Walkthrough
+
+This section consolidates the end-to-end setup links and commands into a single narrative. It is provided as a beginner-friendly companion to the [Quick Start](#quick-start) above and references the same scripts, ports, and tokens.
+
+### 1. All Links
+
+- **Install uv (Python toolchain):** [docs.astral.sh/uv/getting-started/installation](https://docs.astral.sh/uv/getting-started/installation/)
+- **Free Claude Code repository:** [github.com/Pushpenderrathore/claude-code](https://github.com/Pushpenderrathore/claude-code)
+- **NVIDIA NIM API keys:** [build.nvidia.com/settings/api-keys](https://build.nvidia.com/settings/api-keys)
+- **OpenRouter API keys:** [openrouter.ai/keys](https://openrouter.ai/keys)
+- **DeepSeek API keys:** [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)
+
+### 2. Quick Commands
+
+Install Python and clone the repository:
+
+```bash
+uv python install 3.14
+git clone https://github.com/Pushpenderrathore/claude-code.git nvidia-nim
+cd nvidia-nim
+```
+
+Copy the environment template.
+
+**macOS and Linux:**
+
+```bash
+cp .env.example .env
+```
+
+**Windows PowerShell:**
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Start the proxy:
+
+```bash
+uv run uvicorn server:app --host 0.0.0.0 --port 8082
+```
+
+> **Note:** The proxy must remain running in a background terminal for the duration of the Claude Code session.
+
+Install Claude Code:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+Launch Claude Code against the local proxy.
+
+**Windows PowerShell:**
+
+```powershell
+$env:ANTHROPIC_AUTH_TOKEN="freecc"; $env:ANTHROPIC_BASE_URL="http://localhost:8082"; claude
+```
+
+**Bash:**
+
+```bash
+ANTHROPIC_AUTH_TOKEN="freecc" ANTHROPIC_BASE_URL="http://localhost:8082" claude
+```
+
+> **Note:** Both environment variables (`ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_BASE_URL`) must be exported on every invocation, or the launcher script `fcc-claude` may be used instead — see [Quick Start](#quick-start) step 7.
+
+### 3. Step-by-Step Guide
+
+Most tutorials recommend running local models through Ollama or LM Studio. In practice, the hardware required to run a model that is both capable and responsive is outside the reach of most users — even on a high-end Mac with 64 GB of RAM and an M-series chip, capable local models are noticeably slow, and faster local models trade away the reasoning quality that Claude Code workflows rely on.
+
+Claude Code's official pricing starts at $20/month with usage limits that are restrictive for sustained coding sessions, and even the $100/month tier is constraining for heavy users. The approach documented here routes Claude Code traffic to a free NVIDIA NIM endpoint through this proxy, preserving the Claude Code client experience while removing the cost ceiling.
+
+#### Step 1: Install Claude Code
+
+Install the Claude Code CLI from the official source:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+Do not launch `claude` yet — proxy configuration must be completed first.
+
+#### Step 2: Install uv and Python
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), update it to the latest release, and provision Python 3.14:
+
+```bash
+# macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv self update
+uv python install 3.14
+```
+
+```powershell
+# Windows PowerShell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+uv self update
+uv python install 3.14
+```
+
+#### Step 3: Clone the Proxy Repository
+
+Choose a parent directory for the proxy (for example, a `~/Projects` folder), then clone the repository, create an `.env` from the example, and open the directory in your editor:
+
+```bash
+git clone https://github.com/Pushpenderrathore/claude-code.git
+cd claude-code
+cp .env.example .env
+code .
+```
+
+#### Step 4: Obtain Free API Keys
+
+The proxy supports several free upstream providers. NVIDIA NIM is the recommended primary provider, with a free tier of approximately 40 requests per minute — sufficient for sustained coding sessions.
+
+**NVIDIA NIM (recommended)**
+
+1. Create an account at [build.nvidia.com](https://build.nvidia.com/) and complete phone verification (required for key generation).
+2. Click **Generate API Key**, supply a name (for example, `claude-code`) and an expiration date.
+3. Paste the key into `NVIDIA_NIM_API_KEY` in the Admin UI (or, when running from source, into the corresponding entry in `.env`).
+
+**OpenRouter (optional)**
+
+1. Create an account at [openrouter.ai](https://openrouter.ai/).
+2. Generate a key at [openrouter.ai/keys](https://openrouter.ai/keys) and paste it into `OPENROUTER_API_KEY`.
+
+> **Note:** Free OpenRouter endpoints can be intermittently rate-limited for accounts without prepaid credit.
+
+**DeepSeek (optional)**
+
+1. Create an account at [platform.deepseek.com](https://platform.deepseek.com/).
+2. Generate a key at [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys) and paste it into `DEEPSEEK_API_KEY`.
+
+Save the configuration after entering keys.
+
+#### Step 5: Configure the Model Tiers
+
+Claude Code exposes three model tiers — Opus, Sonnet, and Haiku — each of which may be routed to a distinct provider via `MODEL_OPUS`, `MODEL_SONNET`, and `MODEL_HAIKU`. Any unset tier inherits the value of `MODEL`.
+
+- **Opus (NVIDIA NIM):** On [build.nvidia.com](https://build.nvidia.com/explore/discover), filter by **Free Endpoint**, open the desired model (for example, GLM 4.7), and use the model identifier in the form `nvidia_nim/<model-name>`.
+- **Sonnet (OpenRouter):** Select a top-context free model from [openrouter.ai/collections/free-models](https://openrouter.ai/collections/free-models) and use the identifier in the form `open_router/<model-name>`.
+- **Haiku (DeepSeek):** Use the DeepSeek Anthropic-compatible endpoint with `deepseek/deepseek-reasoner`.
+
+For a full provider reference, see [Choose a Provider](#choose-a-provider).
+
+#### Step 6: Start the Proxy and Launch Claude Code
+
+In the proxy directory, start the server:
+
+```bash
+uv run uvicorn server:app --host 0.0.0.0 --port 8082
+```
+
+In a separate terminal, change into the project directory in which Claude Code should operate, then launch the CLI with the proxy environment variables set (see [Quick Commands](#2-quick-commands)). Claude Code will start against the local proxy; the model picker will reflect the configured tiers.
+
+#### Step 7: Optional — Sandbox Mode
+
+Claude Code prompts for permission before modifying files by default. For longer automated sessions, Sandbox Mode confines write access to the current project directory while still requiring confirmation for paths outside it:
+
+1. Inside Claude Code, run `/sandbox`.
+2. Select **Sandbox with auto-allow**.
+
+Use version control alongside Sandbox Mode so that automated changes can be reviewed and reverted as needed.
 
 ## Contributing
 
