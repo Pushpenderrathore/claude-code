@@ -78,13 +78,16 @@ install_node() {
 # ---------- 2. claude code CLI ----------
 install_claude_cli() {
     log "Installing/updating Claude Code CLI"
-    # `npm i -g` upgrades if already installed.
-    if npm install -g @anthropic-ai/claude-code 2>/tmp/fcc-npm.log; then
+    # `--force` lets us overwrite an existing `claude` binary on re-runs.
+    if npm install -g --force @anthropic-ai/claude-code 2>/tmp/fcc-npm.log; then
         ok "Claude Code CLI installed"
-    else
-        warn "Global npm install failed — retrying with sudo"
-        sudo npm install -g @anthropic-ai/claude-code
+    elif grep -q EACCES /tmp/fcc-npm.log; then
+        warn "Global npm install lacks permission — retrying with sudo"
+        sudo npm install -g --force @anthropic-ai/claude-code
         ok "Claude Code CLI installed (with sudo)"
+    else
+        cat /tmp/fcc-npm.log >&2
+        die "npm install of @anthropic-ai/claude-code failed"
     fi
 }
 

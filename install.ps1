@@ -79,8 +79,8 @@ function Install-Node {
 # ---------- 2. Claude Code CLI ----------
 function Install-ClaudeCli {
     Write-Step 'Installing/updating Claude Code CLI'
-    # `npm i -g` installs or upgrades.
-    npm install -g '@anthropic-ai/claude-code'
+    # `--force` overwrites an existing `claude` shim on re-runs.
+    npm install -g --force '@anthropic-ai/claude-code'
     Write-Ok 'Claude Code CLI installed'
 }
 
