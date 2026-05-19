@@ -7,7 +7,7 @@ Use Claude Code CLI, VS Code, JetBrains ACP, or chat bots through your own Anthr
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Python 3.14](https://img.shields.io/badge/python-3.14-3776ab.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&style=for-the-badge)](https://github.com/astral-sh/uv)
-[![Tested with Pytest](https://img.shields.io/badge/testing-Pytest-00c0ff.svg?style=for-the-badge)](https://github.com/Alishahryar1/free-claude-code/actions/workflows/tests.yml)
+[![Tested with Pytest](https://img.shields.io/badge/testing-Pytest-00c0ff.svg?style=for-the-badge)](https://github.com/Pushpenderrathore/claude-code/actions/workflows/tests.yml)
 [![Type checking: Ty](https://img.shields.io/badge/type%20checking-ty-ffcc00.svg?style=for-the-badge)](https://pypi.org/project/ty/)
 [![Code style: Ruff](https://img.shields.io/badge/code%20formatting-ruff-f5a623.svg?style=for-the-badge)](https://github.com/astral-sh/ruff)
 [![Logging: Loguru](https://img.shields.io/badge/logging-loguru-4ecdc4.svg?style=for-the-badge)](https://github.com/Delgan/loguru)
@@ -25,11 +25,11 @@ Free Claude Code routes Anthropic Messages API traffic from Claude Code to NVIDI
 ## Star History
 
 <div align="center">
-  <a href="https://star-history.com/#Alishahryar1/free-claude-code&Date">
+  <a href="https://star-history.com/#Pushpenderrathore/claude-code&Date">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date&theme=dark">
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date">
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date" width="700">
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Pushpenderrathore/claude-code&type=Date&theme=dark">
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Pushpenderrathore/claude-code&type=Date">
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Pushpenderrathore/claude-code&type=Date" width="700">
     </picture>
   </a>
 </div>
@@ -83,7 +83,7 @@ See [NVIDIA NIM provider setup](#nvidia-nim-provider).
 ### 4. Install The Proxy
 
 ```bash
-uv tool install --force git+https://github.com/Alishahryar1/free-claude-code.git
+uv tool install --force git+https://github.com/Pushpenderrathore/claude-code.git
 ```
 
 Use the same command to update to the latest version.
@@ -347,13 +347,13 @@ Voice notes work on Discord and Telegram after you extend your [proxy install](#
 
 ```bash
 # NVIDIA NIM transcription (Riva gRPC)
-uv tool install --force "free-claude-code[voice] @ git+https://github.com/Alishahryar1/free-claude-code.git"
+uv tool install --force "claude-code[voice] @ git+https://github.com/Pushpenderrathore/claude-code.git"
 
 # Local Whisper (CPU or CUDA)
-uv tool install --force "free-claude-code[voice_local] @ git+https://github.com/Alishahryar1/free-claude-code.git"
+uv tool install --force "claude-code[voice_local] @ git+https://github.com/Pushpenderrathore/claude-code.git"
 
 # Both backends
-uv tool install --force "free-claude-code[voice,voice_local] @ git+https://github.com/Alishahryar1/free-claude-code.git"
+uv tool install --force "claude-code[voice,voice_local] @ git+https://github.com/Pushpenderrathore/claude-code.git"
 ```
 
 For **cuda** local Whisper, add `--torch-backend cu130` to the `voice_local` install command. Restart `fcc-server` after reinstalling.
@@ -382,7 +382,7 @@ Important pieces:
 ### 1. Project Structure
 
 ```text
-free-claude-code/
+claude-code/
 ├── server.py              # ASGI entry point
 ├── api/                   # FastAPI routes, service layer, routing, optimizations
 ├── core/                  # Shared Anthropic protocol helpers and SSE utilities
@@ -398,8 +398,8 @@ free-claude-code/
 Use this path if you are developing or want to run directly from a checkout:
 
 ```bash
-git clone https://github.com/Alishahryar1/free-claude-code.git
-cd free-claude-code
+git clone https://github.com/Pushpenderrathore/claude-code.git
+cd claude-code
 uv run uvicorn server:app --host 0.0.0.0 --port 8082
 ```
 
@@ -421,7 +421,7 @@ Run them in that order before pushing. CI enforces the same checks.
 - `fcc-server`: starts the proxy with configured host and port.
 - `fcc-init`: optional advanced scaffold for `~/.fcc/.env`; prefer the **Admin UI** for normal configuration.
 - `fcc-claude`: launches Claude Code with the configured local proxy URL, auth token, model discovery flag, and a 190k `CLAUDE_CODE_AUTO_COMPACT_WINDOW` for auto-compaction.
-- `free-claude-code`: compatibility alias for `fcc-server`.
+- `claude-code`: compatibility alias for `fcc-server`.
 
 ### 5. Extending
 
@@ -433,7 +433,7 @@ Run them in that order before pushing. CI enforces the same checks.
 ## Contributing
 
 - [`.env.example`](.env.example) lists env key names as a read-only reference for contributors; use the **Admin UI** to change managed proxy settings.
-- Report bugs and feature requests in [Issues](https://github.com/Alishahryar1/free-claude-code/issues).
+- Report bugs and feature requests in [Issues](https://github.com/Pushpenderrathore/claude-code/issues).
 - Keep changes small and covered by focused tests.
 - Do not open Docker integration PRs.
 - Do not open README change PRs just open an issue for it.
