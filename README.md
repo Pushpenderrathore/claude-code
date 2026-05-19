@@ -43,10 +43,11 @@ Free Claude Code provides:
 
 - [Overview](#overview)
 - [Quick Start](#quick-start)
-  - [1. Install Claude Code](#1-install-claude-code)
-  - [2. Install Runtime Requirements](#2-install-runtime-requirements)
+  - [1–2 & 4. Automated Install (recommended)](#12--4-automated-install-recommended)
+  - [1. Install Claude Code (manual alternative)](#1-install-claude-code-manual-alternative)
+  - [2. Install Runtime Requirements (manual alternative)](#2-install-runtime-requirements-manual-alternative)
   - [3. Obtain an NVIDIA NIM API Key](#3-obtain-an-nvidia-nim-api-key)
-  - [4. Install the Proxy](#4-install-the-proxy)
+  - [4. Install the Proxy (manual alternative)](#4-install-the-proxy-manual-alternative)
   - [5. Start the Proxy](#5-start-the-proxy)
   - [6. Open the Admin UI and Configure NVIDIA NIM](#6-open-the-admin-ui-and-configure-nvidia-nim)
   - [7. Launch Claude Code](#7-launch-claude-code)
@@ -92,15 +93,47 @@ Free Claude Code provides:
 
 ## Quick Start
 
-### 1. Install Claude Code
+The repository ships one-shot installers that perform steps 1, 2, and 4 below (Node.js + Claude Code CLI, uv + Python 3.14, and the proxy itself). Step 3 — obtaining the NVIDIA NIM API key — remains manual.
 
-Install the latest release of [Claude Code](https://code.claude.com/docs/en/overview):
+### 1–2 & 4. Automated Install (recommended)
+
+Clone the repository first, then run the script for your platform. Both scripts are idempotent and re-run safe (they upgrade in place).
+
+**macOS and Linux:**
+
+```bash
+git clone https://github.com/Pushpenderrathore/claude-code.git
+cd claude-code
+chmod +x install.sh
+./install.sh
+```
+
+**Windows PowerShell:**
+
+```powershell
+git clone https://github.com/Pushpenderrathore/claude-code.git
+cd claude-code
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+The script will:
+
+1. Install Node.js + npm (via `brew` / `apt` / `dnf` / `pacman` on Unix, or `winget` / `choco` on Windows) if missing.
+2. Install the Claude Code CLI (`npm i -g @anthropic-ai/claude-code`).
+3. Install or update [uv](https://docs.astral.sh/uv/), then install Python 3.14.
+4. Install the proxy (`fcc-server`, `fcc-claude`, `fcc-init`) as a uv tool.
+
+Skip ahead to [3. Obtain an NVIDIA NIM API Key](#3-obtain-an-nvidia-nim-api-key) once the script finishes.
+
+### 1. Install Claude Code (manual alternative)
+
+If you prefer to do it step by step, install the latest release of [Claude Code](https://code.claude.com/docs/en/overview):
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
-### 2. Install Runtime Requirements
+### 2. Install Runtime Requirements (manual alternative)
 
 Install the latest version of [uv](https://docs.astral.sh/uv/getting-started/installation/) along with Python 3.14.
 
@@ -124,7 +157,7 @@ uv python install 3.14
 
 Create a free NVIDIA NIM API key and keep it available for the Admin UI configuration step. See [NVIDIA NIM provider setup](#nvidia-nim-provider) for details.
 
-### 4. Install the Proxy
+### 4. Install the Proxy (manual alternative)
 
 ```bash
 uv tool install --force git+https://github.com/Pushpenderrathore/claude-code.git
