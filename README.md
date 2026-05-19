@@ -59,6 +59,9 @@ Free Claude Code provides:
   - [5. `.env` file does not appear after copy](#5-env-file-does-not-appear-after-cp-envexample-env)
   - [6. Clone target already exists](#6-fatal-destination-path-nvidia-nim-already-exists-and-is-not-an-empty-directory)
   - [7. Port 8082 is already in use](#7-port-8082-is-already-in-use)
+- [Uninstall](#uninstall)
+  - [Automated Uninstall](#automated-uninstall)
+  - [Manual Uninstall](#manual-uninstall)
 - [Choose a Provider](#choose-a-provider)
   - [1. NVIDIA NIM](#1-nvidia-nim)
   - [2. Kimi](#2-kimi)
@@ -289,6 +292,55 @@ fcc-server --port 8090
 ```
 
 When changing the port, update `ANTHROPIC_BASE_URL` for any connected client (Claude Code CLI, VS Code, JetBrains ACP) to match.
+
+## Uninstall
+
+The repository ships matching uninstall scripts that mirror the installers. By default they remove **only the proxy** (the thing this repository installs). Shared toolchain (Node.js, npm, uv, uv-managed Pythons) is intentionally left in place — uninstall those manually if you also want them gone.
+
+### Automated Uninstall
+
+**macOS and Linux:**
+
+```bash
+chmod +x Uninstall.sh
+./Uninstall.sh                     # remove the proxy only
+./Uninstall.sh --with-claude-cli   # also npm-uninstall @anthropic-ai/claude-code
+./Uninstall.sh --purge             # also delete ~/.fcc/ (API keys, managed .env, logs)
+./Uninstall.sh --all               # shorthand for --with-claude-cli --purge
+```
+
+**Windows PowerShell:**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Uninstall.ps1                  # proxy only
+powershell -ExecutionPolicy Bypass -File .\Uninstall.ps1 -WithClaudeCli   # also npm-uninstall the CLI
+powershell -ExecutionPolicy Bypass -File .\Uninstall.ps1 -Purge           # also delete %USERPROFILE%\.fcc
+powershell -ExecutionPolicy Bypass -File .\Uninstall.ps1 -All             # shorthand for both
+```
+
+Each step is idempotent: if a component is already gone, the script reports it and continues.
+
+> **Note:** `--purge` / `-Purge` deletes `~/.fcc/`, which contains your `NVIDIA_NIM_API_KEY` (and any other provider keys), the managed `.env`, and proxy logs. Back the directory up first if you intend to reinstall later.
+
+### Manual Uninstall
+
+The automated scripts run these commands under the hood. Run them yourself if you want fine-grained control.
+
+```bash
+# 1. Remove the proxy (fcc-server, fcc-claude, fcc-init, claude-code shim)
+uv tool uninstall claude-code
+
+# 2. (Optional) Remove the Claude Code CLI
+npm uninstall -g @anthropic-ai/claude-code
+
+# 3. (Optional, destructive) Remove user config — contains API keys
+rm -rf ~/.fcc        # macOS / Linux
+# Remove-Item -LiteralPath "$env:USERPROFILE\.fcc" -Recurse -Force   # Windows PowerShell
+
+# 4. (Optional) Remove shared toolchain — only do this if no other project needs it
+uv self uninstall                # remove uv itself
+uv python uninstall 3.14         # remove the uv-managed Python (run before uv self uninstall)
+```
 
 ## Choose a Provider
 
