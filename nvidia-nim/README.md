@@ -122,6 +122,51 @@ fcc-claude
 
 `fcc-claude` reads the current configured port and auth token each time it starts, sets the Claude Code environment variables (including a 190k-token `CLAUDE_CODE_AUTO_COMPACT_WINDOW` for auto-compaction), and then launches the real `claude` command.
 
+## Uninstall
+
+The proxy is installed as a `uv` tool, so it can be removed cleanly without touching shared toolchain. By default only the proxy is removed; the Claude Code CLI, uv, Node.js, and uv-managed Pythons are left in place — remove those manually if you also want them gone.
+
+### 1. Remove The Proxy
+
+```bash
+uv tool uninstall claude-code
+```
+
+This removes `fcc-server`, `fcc-claude`, `fcc-init`, and the `claude-code` shim installed by the proxy.
+
+### 2. (Optional) Remove The Claude Code CLI
+
+```bash
+npm uninstall -g @anthropic-ai/claude-code
+```
+
+### 3. (Optional, Destructive) Remove User Config
+
+`~/.fcc/` holds your `NVIDIA_NIM_API_KEY`, any other provider keys, the managed `.env`, and proxy logs. Back it up first if you intend to reinstall later.
+
+macOS and Linux:
+
+```bash
+rm -rf ~/.fcc
+```
+
+Windows PowerShell:
+
+```powershell
+Remove-Item -LiteralPath "$env:USERPROFILE\.fcc" -Recurse -Force
+```
+
+### 4. Helper Scripts
+
+If you cloned the repository, the matching uninstall scripts wrap all of the above behind a single command:
+
+```bash
+./Uninstall.sh --all                                                # macOS / Linux
+powershell -ExecutionPolicy Bypass -File .\Uninstall.ps1 -All       # Windows
+```
+
+Run without flags to remove the proxy only; pass `--with-claude-cli` / `-WithClaudeCli` to also remove the npm CLI, or `--purge` / `-Purge` to also delete `~/.fcc/`.
+
 ## Choose A Provider
 
 Pick one provider, enter its key or local URL in the Admin UI, and set `MODEL` to a provider-prefixed model slug. `MODEL` is the fallback. `MODEL_OPUS`, `MODEL_SONNET`, and `MODEL_HAIKU` can override routing for Claude Code's model tiers.
