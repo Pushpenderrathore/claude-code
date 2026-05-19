@@ -430,6 +430,52 @@ Run them in that order before pushing. CI enforces the same checks.
 - Register provider metadata in `config.provider_catalog` and factory wiring in `providers.registry`.
 - Add messaging platforms by implementing the `MessagingPlatform` interface in `messaging/`.
 
+## Troubleshooting
+
+### `uv run uvicorn` fails with `Failed to spawn: uvicorn` / `No such file or directory (os error 2)`
+
+When running from source you may see:
+
+```text
+$ uv run uvicorn server:app --host 0.0.0.0 --port 8082
+error: Failed to spawn: `uvicorn`
+  Caused by: No such file or directory (os error 2)
+```
+
+This happens because `uv run <name>` expects an executable on PATH inside the project's virtualenv. Even after `uv add uvicorn fastapi` or `uv pip install uvicorn fastapi`, the `uvicorn` console script may not be exposed on the venv's `bin/` (or `Scripts/` on Windows) — typically because the package was installed without its entry points, the venv is out of sync with the lockfile, or `uv` resolved against a different environment.
+
+**Fix — invoke uvicorn as a module instead of relying on the script shim:**
+
+```bash
+uv run python -m uvicorn server:app --host 0.0.0.0 --port 8082
+```
+
+Expected startup output:
+
+```text
+INFO:     Started server process [6142]
+INFO:     Waiting for application startup.
+INFO:     Admin UI: http://127.0.0.1:8082/admin (local-only)
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8082 (Press CTRL+C to quit)
+```
+
+`python -m uvicorn` imports the package directly, so it works whenever `uvicorn` is importable in the environment — regardless of whether the `uvicorn` console script ended up on PATH.
+
+**If you prefer to keep using `uv run uvicorn ...`**, re-sync the environment so entry points are installed cleanly:
+
+```bash
+uv sync --reinstall
+uv run uvicorn --version   # verify the script is now resolvable
+uv run uvicorn server:app --host 0.0.0.0 --port 8082
+```
+
+For normal users, prefer the packaged launcher — it sidesteps this class of issue entirely:
+
+```bash
+fcc-server
+```
+
 ## Contributing
 
 - [`.env.example`](.env.example) lists env key names as a read-only reference for contributors; use the **Admin UI** to change managed proxy settings.
