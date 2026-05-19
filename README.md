@@ -256,16 +256,16 @@ Most users do not need this command — install the packaged proxy and run `fcc-
 
 ### 4. `cd: no such file or directory: nvidia-nim` after cloning
 
-The directory is only named `nvidia-nim` when the repository is cloned with that name as the target. Either clone with an explicit target directory, or `cd` into the default `free-claude-code` directory produced by `git clone`:
+The directory is only named `nvidia-nim` when the repository is cloned with that name as the target. Either clone with an explicit target directory, or `cd` into the default `claude-code` directory produced by `git clone`:
 
 ```bash
 # Option A — clone into an explicitly named directory
-git clone https://github.com/Alishahryar1/free-claude-code.git nvidia-nim
+git clone https://github.com/Pushpenderrathore/claude-code.git nvidia-nim
 cd nvidia-nim
 
 # Option B — use the default directory name
-git clone https://github.com/Alishahryar1/free-claude-code.git
-cd free-claude-code
+git clone https://github.com/Pushpenderrathore/claude-code.git
+cd claude-code
 ```
 
 ### 5. `.env` file does not appear after `cp .env.example .env`
@@ -283,7 +283,7 @@ open -e .env        # macOS, opens in TextEdit
 
 ```bash
 rm -rf nvidia-nim   # destructive — verify contents first
-git clone https://github.com/Alishahryar1/free-claude-code.git nvidia-nim
+git clone https://github.com/Pushpenderrathore/claude-code.git nvidia-nim
 ```
 
 ### 7. Port 8082 is already in use
@@ -645,7 +645,7 @@ These should be executed in the order shown prior to pushing. Continuous integra
 - `fcc-server`: starts the proxy with the configured host and port.
 - `fcc-init`: optional advanced scaffold for `~/.fcc/.env`. The Admin UI is preferred for routine configuration.
 - `fcc-claude`: launches Claude Code with the configured local proxy URL, authentication token, model-discovery flag, and a 190,000-token `CLAUDE_CODE_AUTO_COMPACT_WINDOW` value for auto-compaction.
-- `claude-code`: a compatibility alias for `fcc-server`.
+- `claude-code`: a compatibility as for `fcc-server`.
 
 ### 5. Extending the Proxy
 
