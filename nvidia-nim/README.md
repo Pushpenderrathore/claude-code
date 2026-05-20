@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤖 Free Claude Code
+# Claude Code Anthropic Created with ❤️
 
 Use Claude Code CLI, VS Code, JetBrains ACP, or chat bots through your own Anthropic-compatible proxy.
 
