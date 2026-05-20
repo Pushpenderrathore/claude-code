@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# CodeRabbit AI code-review configuration.
+# This file only takes effect once the CodeRabbit GitHub App is installed
+# on the repository: https://github.com/apps/coderabbitai
+
+language: en-US
+early_access: false
+
+reviews:
+  # "chill" keeps comments focused on real issues; switch to "assertive"
+  # for more thorough (and noisier) reviews.
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+  # Skip the lockfile, generated assets, and the nested nvidia-nim/ copy
+  # (kept out of CI for the same reason).
+  path_filters:
+    - "!**/*.lock"
+    - "!assets/**"
+    - "!nvidia-nim/**"
+  path_instructions:
+    - path: "**/*.py"
+      instructions: >-
+        Follow AGENTS.md: write the simplest code possible, fix root causes
+        not symptoms, and target Python 3.14. Never allow `# type: ignore`
+        or `# ty: ignore` — the underlying type issue must be fixed instead.
+        Flag dead code and hardcoded values (configuration should come from
+        settings/config). Shared Anthropic protocol logic belongs in
+        core/anthropic/; a provider must not import from another provider's
+        modules. Flag new behavior or edge cases that lack test coverage.
+  tools:
+    ruff:
+      enabled: true
+
+chat:
+  auto_reply: true
