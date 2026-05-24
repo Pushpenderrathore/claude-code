@@ -1,6 +1,6 @@
 <div align="center">
 
-# Claude Code Anthropic created with ❤️
+# Claude Code Anthropic CLI Created With ❤️
 
 An Anthropic-compatible proxy that lets Claude Code, the VS Code extension, JetBrains ACP, and chat bots route traffic through alternative model providers.
 
